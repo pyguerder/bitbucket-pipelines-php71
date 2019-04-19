@@ -5,13 +5,8 @@ MAINTAINER Pierre-Yves Guerder <pierreyves.guerder@gmail.com>
 # Set correct environment variables
 ENV HOME /root
 
-# Ensure UTF-8
-ENV LANG       en_US.UTF-8
-ENV LC_ALL     en_US.UTF-8
-RUN locale-gen en_US.UTF-8
-
 # MYSQL ROOT PASSWORD
-ARG MYSQL_ROOT_PASS=root    
+ARG MYSQL_ROOT_PASS=root
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
@@ -30,8 +25,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     autoconf \
     g++ \
     make \
+    locales \
     --no-install-recommends && rm -r /var/lib/apt/lists/* \
     && apt-get --purge autoremove -y
+
+# Ensure UTF-8
+ENV LANG       en_US.UTF-8
+ENV LC_ALL     en_US.UTF-8
+RUN locale-gen en_US.UTF-8
 
 # OpenSSL
 RUN mkdir -p /usr/local/openssl/include/openssl/ && \
@@ -46,7 +47,7 @@ RUN bash -c 'debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_pass
 		bash -c 'debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password_again password $MYSQL_ROOT_PASS"' && \
 		DEBIAN_FRONTEND=noninteractive apt-get update && \
 		DEBIAN_FRONTEND=noninteractive apt-get install -qqy mysql-server-5.7
-		
+
 # PHP Extensions
 RUN add-apt-repository -y ppa:ondrej/php && \
     DEBIAN_FRONTEND=noninteractive apt-get update && \
